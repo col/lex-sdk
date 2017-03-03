@@ -1,0 +1,15 @@
+{
+  "name": "lex-sdk",
+  "version": "0.0.1",
+  "description": "A subset of the alexa-sdk refactored to be used with the Lex service",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node spec"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jasmine-node": "^1.14.5",
+    "nock": "^9.0.9"
+  }
+}

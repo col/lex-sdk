@@ -1,0 +1,17 @@
+{
+  "messageVersion": "1.0",
+  "invocationSource": "FulfillmentCodeHook",
+  "userId": "",
+  "sessionAttributes": {},
+  "bot": {
+    "name": "MyBot",
+    "alias": null,
+    "version": "$LATEST"
+  },
+  "outputDialogMode": "Text",
+  "currentIntent": {
+    "name": "TestIntent",
+    "slots": {},
+    "confirmationStatus": "None"
+  }
+}
