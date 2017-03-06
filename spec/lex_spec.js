@@ -155,23 +155,47 @@ describe('Lex', () => {
   });
 
   describe('#execute', () => {
-    var event = {
-      sessionAttributes: {},
-      invocationSource: "FulfillmentCodeHook",
-      currentIntent: {
-        name: "TestIntent"
-      }
-    };
 
-    it("should emit an event with the IntentName from the request", (done) => {
-      var lex = Lex.lexRequestHandler(event, {}, null);
-      lex.registerHandlers({
-        'TestIntent': function() {
-          done();
+    describe('FulfillmentCodeHook', () => {
+      var event = {
+        sessionAttributes: {},
+        invocationSource: "FulfillmentCodeHook",
+        currentIntent: {
+          name: "TestIntent"
         }
-      });
+      };
 
-      lex.execute();
+      it("should emit an event with the IntentName from the request", (done) => {
+        var lex = Lex.lexRequestHandler(event, {}, null);
+        lex.registerHandlers({
+          'TestIntent': function() {
+            done();
+          }
+        });
+
+        lex.execute();
+      });
+    });
+
+    describe('DialogCodeHook', () => {
+      var event = {
+        sessionAttributes: {},
+        invocationSource: "DialogCodeHook",
+        currentIntent: {
+          name: "TestIntent"
+        }
+      };
+
+      it("should emit an event with the IntentName from the request", (done) => {
+        var lex = Lex.lexRequestHandler(event, {}, null);
+        lex.registerHandlers({
+          'TestIntent': function() {
+            done();
+          }
+        });
+
+        lex.execute();
+      });
     });
   });
 
