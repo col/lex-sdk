@@ -1,0 +1,11 @@
+{
+  "sessionAttributes": {},
+  "dialogAction": {
+    "type": "Delegate",
+    "slots": {
+      "PickupTime": null,
+      "FlowerType": null,
+      "PickupDate": null
+    }
+  }
+}

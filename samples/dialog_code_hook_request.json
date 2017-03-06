@@ -1,0 +1,21 @@
+{
+  "messageVersion": "1.0",
+  "invocationSource": "DialogCodeHook",
+  "userId": "ignw84y6seypre4xly5rimopuri2xwnd",
+  "sessionAttributes": {},
+  "bot": {
+    "name": "OrderFlowers",
+    "alias": null,
+    "version": "$LATEST"
+  },
+  "outputDialogMode": "Text",
+  "currentIntent": {
+    "name": "OrderFlowers",
+    "slots": {
+      "PickupTime": null,
+      "FlowerType": null,
+      "PickupDate": null
+    },
+    "confirmationStatus": "None"
+  }
+}
