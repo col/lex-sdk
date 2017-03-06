@@ -1,6 +1,17 @@
 const nock = require('nock');
 const Lex = require('../lib/lex');
 
+function testEvent(intentName = 'TestIntent', invocationSource = 'FulfillmentCodeHook', sessionAttributes = {}, slots = {}) {
+    return {
+      sessionAttributes: sessionAttributes,
+      invocationSource: invocationSource,
+      currentIntent: {
+        name: intentName,
+        slots: slots
+      }
+    }
+}
+
 describe('Lex', () => {
 
   describe('#lexRequestHandler', () => {
@@ -54,15 +65,7 @@ describe('Lex', () => {
   });
 
   describe('#registerHandlers', () => {
-    var event = {
-      sessionAttributes: { "test": "123" },
-      currentIntent: {
-        name: "TestIntent",
-        slots: {
-          slotA: "value"
-        }
-      }
-    };
+    var event = testEvent();
     var context = {};
     var callback = function() {};
     var lex = null;
@@ -84,7 +87,7 @@ describe('Lex', () => {
     it("should bind a context containing the Intent name, Lex event, Lex context, attributes and slots", (done) => {
       lex.registerHandlers({
         'TestIntent': function() {
-          expect(this.name).toBe('TestIntent');
+          expect(this.name).toBe(event.currentIntent.name);
           expect(this.event).toBe(event);
           expect(this.context).toBe(context);
           expect(this.attributes).toBe(event.sessionAttributes);
@@ -107,16 +110,44 @@ describe('Lex', () => {
 
   });
 
-  describe(':elicit', () => {
-    var event = {
-      invocationSource: "DialogCodeHook",
-      currentIntent: {
-        slots: {
-          slotA: "value",
-          slotB: "invalid value"
+  describe(':delegate', () => {
+    var event = testEvent("TestEvent", "DialogCodeHook", {}, {
+      slotA: "value",
+      slotB: null
+    });
+    var expectedResponse = {
+        sessionAttributes: {},
+        dialogAction: {
+            type: "Delegate",
+            slots: {
+              slotA: "value",
+              slotB: null
+            }
         }
-      }
     };
+
+    it("should produce the expected response", (done) => {
+      var lex = Lex.lexRequestHandler(event, {
+        succeed: function(response) {
+          expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
+          done();
+        }
+      }, null);
+      lex.registerHandlers({
+        'TestIntent': function() {
+            this.emit(':delegate');
+        }
+      });
+      lex.emit('TestIntent');
+    });
+
+  });
+
+  describe(':elicit', () => {
+    var event = testEvent("TestEvent", "DialogCodeHook", {}, {
+      slotA: "value",
+      slotB: "invalid value"
+    });
     var expectedResponse = {
         sessionAttributes: {},
         dialogAction: {
@@ -152,13 +183,7 @@ describe('Lex', () => {
   });
 
   describe('response handler - :tell', () => {
-    var event = {
-      invocationSource: "FulfillmentCodeHook",
-      sessionAttributes: { "test": "123" },
-      currentIntent: {
-        name: "TestIntent"
-      }
-    };
+    var event = testEvent();
     var expectedResponse = {
         sessionAttributes: {},
         dialogAction: {
@@ -189,13 +214,7 @@ describe('Lex', () => {
   });
 
   describe('response handler - :tell with SSML', () => {
-    var event = {
-      invocationSource: "FulfillmentCodeHook",
-      sessionAttributes: { "test": "123" },
-      currentIntent: {
-        name: "TestIntent"
-      }
-    };
+    var event = testEvent();
     var expectedResponse = {
         sessionAttributes: {},
         dialogAction: {
@@ -228,15 +247,9 @@ describe('Lex', () => {
   describe('#execute', () => {
 
     describe('General Intent Handler', () => {
-      var event = {
-        sessionAttributes: {},
-        invocationSource: "FulfillmentCodeHook",
-        currentIntent: {
-          name: "TestIntent"
-        }
-      };
 
       it("should emit an event with the IntentName from the request", (done) => {
+        var event = testEvent("TestIntent");
         var lex = Lex.lexRequestHandler(event, {}, null);
         lex.registerHandlers({
           'TestIntent': function() {
@@ -246,18 +259,13 @@ describe('Lex', () => {
 
         lex.execute();
       });
+
     });
 
     describe('FulfillmentCodeHook', () => {
-      var event = {
-        sessionAttributes: {},
-        invocationSource: "FulfillmentCodeHook",
-        currentIntent: {
-          name: "TestIntent"
-        }
-      };
 
       it("should emit an event with the IntentName.InvocationType from the request", (done) => {
+        var event = testEvent("TestIntent", "FulfillmentCodeHook");
         var lex = Lex.lexRequestHandler(event, {}, null);
         lex.registerHandlers({
           'TestIntent.Fulfillment': function() {
@@ -267,18 +275,13 @@ describe('Lex', () => {
 
         lex.execute();
       });
+
     });
 
     describe('DialogCodeHook', () => {
-      var event = {
-        sessionAttributes: {},
-        invocationSource: "DialogCodeHook",
-        currentIntent: {
-          name: "TestIntent"
-        }
-      };
 
       it("should emit an event with the IntentName.InvocationType from the request", (done) => {
+        var event = testEvent("TestIntent", "DialogCodeHook");
         var lex = Lex.lexRequestHandler(event, {}, null);
         lex.registerHandlers({
           'TestIntent.Dialog': function() {
@@ -288,6 +291,7 @@ describe('Lex', () => {
 
         lex.execute();
       });
+
     });
 
   });
