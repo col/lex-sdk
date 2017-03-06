@@ -144,7 +144,7 @@ describe('Lex', () => {
   });
 
   describe(':elicit', () => {
-    var event = testEvent("TestEvent", "DialogCodeHook", {}, {
+    var event = testEvent("TestIntent", "DialogCodeHook", {}, {
       slotA: "value",
       slotB: "invalid value"
     });
@@ -153,6 +153,7 @@ describe('Lex', () => {
         dialogAction: {
             type: "ElicitSlot",
             slotToElicit: "slotB",
+            intentName: "TestIntent",
             slots: {
               slotA: "value",
               slotB: null
