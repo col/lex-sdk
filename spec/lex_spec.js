@@ -1,15 +1,19 @@
 const nock = require('nock');
 const Lex = require('../lib/lex');
 
-function testEvent(intentName = 'TestIntent', invocationSource = 'FulfillmentCodeHook', sessionAttributes = {}, slots = {}) {
-    return {
-      sessionAttributes: sessionAttributes,
-      invocationSource: invocationSource,
-      currentIntent: {
-        name: intentName,
-        slots: slots
-      }
+function testEvent(intentName, invocationSource, sessionAttributes, slots) {
+  intentName = intentName || 'TestIntent'
+  invocationSource = invocationSource || 'FulfillmentCodeHook'
+  sessionAttributes = sessionAttributes || {}
+  slots = slots || {}
+  return {
+    sessionAttributes: sessionAttributes,
+    invocationSource: invocationSource,
+    currentIntent: {
+      name: intentName,
+      slots: slots
     }
+  }
 }
 
 describe('Lex', () => {
