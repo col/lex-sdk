@@ -187,6 +187,42 @@ describe('Lex', () => {
 
   });
 
+  describe(':confirm', () => {
+    var event = testEvent("TestIntent", "DialogCodeHook", {}, {
+      slotA: "value"
+    });
+    var expectedResponse = {
+        sessionAttributes: {},
+        dialogAction: {
+            type: "ConfirmIntent",
+            intentName: "TestIntent",
+            slots: {
+              slotA: "value"
+            },
+            message: {
+                contentType: "PlainText",
+                content: "Are you sure?"
+            }
+        }
+    };
+
+    it("should produce the expected response", (done) => {
+      var lex = Lex.lexRequestHandler(event, {
+        succeed: function(response) {
+          expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
+          done();
+        }
+      }, null);
+      lex.registerHandlers({
+        'TestIntent': function() {
+            this.emit(':confirm', "Are you sure?");
+        }
+      });
+      lex.emit('TestIntent');
+    });
+
+  });
+
   describe('response handler - :tell', () => {
     var event = testEvent();
     var expectedResponse = {
