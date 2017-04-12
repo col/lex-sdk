@@ -215,7 +215,7 @@ describe('Lex', () => {
       }, null);
       lex.registerHandlers({
         'TestIntent': function() {
-            this.emit(':confirm', "Are you sure?");
+            this.emit(':confirm', "TestIntent", "Are you sure?");
         }
       });
       lex.emit('TestIntent');
