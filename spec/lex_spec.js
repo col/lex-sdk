@@ -152,24 +152,25 @@ describe('Lex', () => {
       slotA: "value",
       slotB: "invalid value"
     });
-    var expectedResponse = {
-        sessionAttributes: {},
-        dialogAction: {
-            type: "ElicitSlot",
-            slotToElicit: "slotB",
-            intentName: "TestIntent",
-            slots: {
-              slotA: "value",
-              slotB: null
-            },
-            message: {
-                contentType: "PlainText",
-                content: "Invalid value is not supported. Please provide slotB again."
-            }
-        }
-    };
 
     it("should produce the expected response", (done) => {
+      var expectedResponse = {
+          sessionAttributes: {},
+          dialogAction: {
+              type: "ElicitSlot",
+              slotToElicit: "slotB",
+              intentName: "TestIntent",
+              slots: {
+                slotA: "value",
+                slotB: null
+              },
+              message: {
+                  contentType: "PlainText",
+                  content: "Invalid value is not supported. Please provide slotB again."
+              }
+          }
+      };
+
       var lex = Lex.lexRequestHandler(event, {
         succeed: function(response) {
           expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
@@ -180,6 +181,36 @@ describe('Lex', () => {
         'TestIntent': function() {
             this.slots.slotB = null;
             this.emit(':elicit', 'slotB', "Invalid value is not supported. Please provide slotB again.");
+        }
+      });
+      lex.emit('TestIntent');
+    });
+
+    it("should not include the message if none is provided", (done) => {
+      var expectedResponse = {
+          sessionAttributes: {},
+          dialogAction: {
+              type: "ElicitSlot",
+              slotToElicit: "slotB",
+              intentName: "TestIntent",
+              slots: {
+                slotA: "value",
+                slotB: null
+              },
+              message: {}
+          }
+      };
+
+      var lex = Lex.lexRequestHandler(event, {
+        succeed: function(response) {
+          expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
+          done();
+        }
+      }, null);
+      lex.registerHandlers({
+        'TestIntent': function() {
+            this.slots.slotB = null;
+            this.emit(':elicit', 'slotB');
         }
       });
       lex.emit('TestIntent');
