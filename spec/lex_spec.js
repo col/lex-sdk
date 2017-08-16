@@ -196,8 +196,7 @@ describe('Lex', () => {
               slots: {
                 slotA: "value",
                 slotB: null
-              },
-              message: {}
+              }
           }
       };
 
