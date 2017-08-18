@@ -253,22 +253,23 @@ describe('Lex', () => {
 
   });
 
-  describe('response handler - :tell', () => {
-    var event = testEvent();
-    var expectedResponse = {
-        sessionAttributes: {},
-        dialogAction: {
-            type: "Close",
-            fulfillmentState: "Fulfilled",
-            message: {
-                contentType: "PlainText",
-                content: "Hello world!"
-            }
-        }
-    };
+  describe(':tell', () => {
 
     it("should produce the expected response", (done) => {
-      var lex = Lex.lexRequestHandler({}, {
+      var event = testEvent();
+      var expectedResponse = {
+          sessionAttributes: {},
+          dialogAction: {
+              type: "Close",
+              fulfillmentState: "Fulfilled",
+              message: {
+                  contentType: "PlainText",
+                  content: "Hello world!"
+              }
+          }
+      };
+
+      var lex = Lex.lexRequestHandler(event, {
         succeed: function(response) {
           expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
           done();
@@ -282,9 +283,41 @@ describe('Lex', () => {
       lex.emit('TestIntent');
     });
 
+    it("should be able to delete sessionAttributes", (done) => {
+      var event = testEvent('TestIntent', 'FulfillmentCodeHook', { ValueA: 'Blah' }, {});
+      var expectedResponse = {
+          sessionAttributes: {},
+          dialogAction: {
+              type: "Close",
+              fulfillmentState: "Fulfilled",
+              message: {
+                  contentType: "PlainText",
+                  content: "Hello world!"
+              }
+          }
+      };
+
+      var lex = Lex.lexRequestHandler(event, {
+        succeed: function(response) {
+          expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
+          done();
+        }
+      }, null);
+      lex.registerHandlers({
+        'TestIntent': function() {
+            // Note: You cannot just set `this.attributes = {}` as this only
+            // modifies the 'attributes' bound to this context.
+            // You need to actually mutate the attributes object.
+            Object.keys(this.attributes).forEach( (key) => { delete this.attributes[key]; });
+            this.emit(':tell', "Hello world!");
+        }
+      });
+      lex.emit('TestIntent');
+    });
+
   });
 
-  describe('response handler - :tell with SSML', () => {
+  describe(':tell with SSML', () => {
     var event = testEvent();
     var expectedResponse = {
         sessionAttributes: {},
@@ -299,7 +332,7 @@ describe('Lex', () => {
     };
 
     it("should produce the expected response", (done) => {
-      var lex = Lex.lexRequestHandler({}, {
+      var lex = Lex.lexRequestHandler(event, {
         succeed: function(response) {
           expect(JSON.stringify(response)).toEqual(JSON.stringify(expectedResponse));
           done();
